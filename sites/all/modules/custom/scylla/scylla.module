@@ -1,0 +1,36 @@
+<?php
+//Include protocol buff readers from
+include_once("protobuf-lib/DrSlump/Protobuf.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Message.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Registry.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Descriptor.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Field.php");
+include_once("protobuf-lib/gtfs-realtime.php");
+include_once("protobuf-lib/nyct-subway.php");
+include_once("protobuf-lib/DrSlump/Protobuf/CodecInterface.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Codec/PhpArray.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Codec/Binary.php");
+include_once("protobuf-lib/DrSlump/Protobuf/Codec/Binary/Reader.php");
+//Code goes here
+
+function scylla_get_subway_data() {
+	$api_key = "9c8810fd86203dd45920449c10927173";
+	$url =  "http://datamine.mta.info/mta_esi.php?key=" . $api_key . "&feed_id=1";
+	$fm = DrSlump\Protobuf::decode('transit_realtime\FeedMessage',file_get_contents($url));
+	$url2 = "http://datamine.mta.info/mta_esi.php?key=" . $api_key . "&feed_id=2";
+	$jsonStuff = drupal_json_encode($fm);
+	$timestamp = date('YmdGi');
+	$output_path = drupal_realpath('public://');
+	$output_path .= '/MTA/' . $timestamp . '.json';
+	file_put_contents($output_path,$jsonStuff);
+}
+
+function scylla_cronapi($op, $job = NULL) {
+	$items['scylla_subway_update_a'] = array(
+		'description' => 'cron job to download MTA data each minute',
+		'rule' => '* * * * *',
+		'callback' => 'scylla_get_subway_data',
+		'arguments' => array('a')
+	);
+	return $items;
+}

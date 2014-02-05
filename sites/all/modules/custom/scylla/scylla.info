@@ -1,0 +1,6 @@
+name = Scylla Core
+description = Provides data ingestion features for use by Scylla
+package = Scylla
+core = 7.x
+version = 7.x-1.0-alpha
+
