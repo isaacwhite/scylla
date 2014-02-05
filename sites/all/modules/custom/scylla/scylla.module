@@ -19,7 +19,7 @@ function scylla_get_subway_data() {
 	$fm = DrSlump\Protobuf::decode('transit_realtime\FeedMessage',file_get_contents($url));
 	$url2 = "http://datamine.mta.info/mta_esi.php?key=" . $api_key . "&feed_id=2";
 	$jsonStuff = drupal_json_encode($fm);
-	$timestamp = date('YmdGi');
+	$timestamp = date('Y-m-d_H-i'); //better use leading zeroes
 	$output_path = drupal_realpath('public://');
 	$output_path .= '/MTA/' . $timestamp . '.json';
 	file_put_contents($output_path,$jsonStuff);
